@@ -9,8 +9,10 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -o /meshdns ./cmd/meshdns
 
-# Stage 2: Minimal runtime image
-FROM gcr.io/distroless/static-debian12
+# Stage 2: Minimal runtime image (alpine works on Render; distroless pull is flaky)
+FROM alpine:3.21
+
+RUN apk --no-cache add ca-certificates tzdata
 
 COPY --from=builder /meshdns /meshdns
 COPY web/ /web/
