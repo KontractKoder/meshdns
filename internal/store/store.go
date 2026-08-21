@@ -148,6 +148,16 @@ func (s *Store) GetServerByName(name string) (Server, error) {
 	return s.getServer("servers.name = ?", name)
 }
 
+func (s *Store) GetServerWriteKeyHash(id string) (string, error) {
+	var hash string
+	err := s.db.QueryRow(`SELECT write_key_hash FROM servers WHERE id = ?`, id).Scan(&hash)
+	if err != nil {
+		return "", err
+	}
+
+	return hash, nil
+}
+
 func (s *Store) UpdateServer(server Server) error {
 	tx, err := s.db.Begin()
 	if err != nil {
