@@ -84,8 +84,8 @@ const servers = await client.resolve("weather");
 |--------|------|-------------|
 | `POST` | `/v0/servers` | Register a new server. Returns `server_id` + `write_key`. |
 | `GET` | `/v0/servers` | List servers. Query params: `status` (active/delisted/all), `query`, `capability`, `cursor`, `limit`. |
-| `PUT` | `/v0/servers/{id}` | Update a server. Requires `Authorization: Bearer <write_key>`. |
-| `DELETE` | `/v0/servers/{id}` | Delist (soft-delete) a server. Requires `Authorization: Bearer <write_key>`. |
+| `PUT` | `/v0/servers/{id}` | Update a server. Requires `Authorization: Bearer ***` header. |
+| `DELETE` | `/v0/servers/{id}` | Delist (soft-delete) a server. Requires `Authorization: Bearer ***` header. |
 | `GET` | `/v0/resolve` | Resolve servers by capability. Query param: `capability` (required). Returns only healthy servers. |
 | `GET` | `/v0/stats` | Registry statistics: active/total servers, up count, resolutions and probes in the last 24h. |
 
