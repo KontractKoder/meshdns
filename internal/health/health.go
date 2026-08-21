@@ -11,6 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/KontractKoder/meshdns/internal/events"
 	"github.com/KontractKoder/meshdns/internal/store"
 )
 
@@ -176,6 +177,11 @@ func (p *Pool) runProbe(serverID, url string) {
 	if err := p.st.RecordProbe(serverID, ts, up, latencyMs); err != nil {
 		return
 	}
+	_ = events.Log(p.st, "probe", map[string]any{
+		"server_id":  serverID,
+		"result":     up,
+		"latency_ms": latencyMs,
+	}, "")
 	uptime30d, err := p.st.GetUptime30d(serverID)
 	if err != nil {
 		return
