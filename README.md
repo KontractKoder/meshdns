@@ -1,12 +1,25 @@
 # MeshDNS
 
+[![Go Version](https://img.shields.io/badge/Go-1.24-00ADD8?logo=go)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker)](Dockerfile)
+[![Discussions](https://img.shields.io/badge/Discussions-Welcome-6f42c1?logo=github)](https://github.com/KontractKoder/meshdns/discussions)
+[![Status](https://img.shields.io/badge/status-live-brightgreen)](https://meshdns.onrender.com)
 
 **MeshDNS — the service registry for AI agents. Never hardcode an MCP server again.**
 
 MeshDNS is a lightweight, zero-dependency service registry that lets AI agents discover each other at runtime. MCP servers register their capabilities and health endpoints; agents query `resolve("capability")` to find the best available server. Think DNS, but for your agent mesh.
 
 ---
+
+## Install
+
+```bash
+go install github.com/KontractKoder/meshdns/cmd/meshdns@latest
+```
+
+Or grab the pre-built binary from [releases](https://github.com/KontractKoder/meshdns/releases)
+(linux-amd64, statically linked — no dependencies).
 
 ## Quickstart
 
@@ -106,6 +119,13 @@ MeshDNS ships as a **single static binary** with no external dependencies:
 Config via environment variables: `MESHDNS_PORT`, `MESHDNS_DB`, `MESHDNS_PROBE_INTERVAL`, `MESHDNS_PROBE_TIMEOUT`, `MESHDNS_WORKERS`.
 
 ---
+
+## Community
+
+- 💬 [**Discussions**](https://github.com/KontractKoder/meshdns/discussions) — ideas, Q&A, show and tell
+- 🐛 [**Issues**](https://github.com/KontractKoder/meshdns/issues) — bug reports
+- 📖 [**Contributing**](CONTRIBUTING.md) — setup, tests, PR checklist
+- 🔒 [**Security**](SECURITY.md) — vulnerability reporting
 
 ## License
 
