@@ -84,6 +84,13 @@ func (s *Server) handleRegisterServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fast path: check for duplicate name before hitting the DB write
+	// (gives a clear 409 instead of a confusing validation error when name is taken)
+	if _, err := s.store.GetServerByName(req.Name); err == nil {
+		writeError(w, http.StatusConflict, "duplicate_name", "server name already exists")
+		return
+	}
+
 	serverID, err := uuidV4()
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal_error", "failed to generate server id")
