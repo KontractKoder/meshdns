@@ -79,15 +79,15 @@ func (s *Server) handleRegisterServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if detail := validateRegisterServer(req); len(detail) > 0 {
-		writeError(w, http.StatusUnprocessableEntity, "validation_failed", detail)
-		return
-	}
-
-	// Fast path: check for duplicate name before hitting the DB write
+	// Fast path: check for duplicate name before validation
 	// (gives a clear 409 instead of a confusing validation error when name is taken)
 	if _, err := s.store.GetServerByName(req.Name); err == nil {
 		writeError(w, http.StatusConflict, "duplicate_name", "server name already exists")
+		return
+	}
+
+	if detail := validateRegisterServer(req); len(detail) > 0 {
+		writeError(w, http.StatusUnprocessableEntity, "validation_failed", detail)
 		return
 	}
 
