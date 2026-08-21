@@ -1,0 +1,17 @@
+[Unit]
+Description=MeshDNS MCP Service Registry
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+ExecStart=/usr/local/bin/meshdns
+EnvironmentFile=/etc/meshdns/meshdns.env
+User=meshdns
+Group=meshdns
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

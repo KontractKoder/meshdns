@@ -1,0 +1,6 @@
+# MeshDNS reverse proxy with auto-TLS
+# Replace meshdns.dev with your own domain before deploying.
+
+meshdns.dev {
+	reverse_proxy localhost:8080
+}
