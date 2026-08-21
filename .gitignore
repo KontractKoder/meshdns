@@ -2,6 +2,8 @@ meshdns
 *.db
 sdk/.venv/
 sdk/venv/
-sdk/node_modules/
-sdk/dist/
+sdk/**/node_modules/
+sdk/**/dist/
+sdk/**/package-lock.json
 .env
+*.test.db
