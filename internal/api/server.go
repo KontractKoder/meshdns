@@ -20,6 +20,7 @@ func New(st *store.Store) *Server {
 
 func (s *Server) Router() *http.ServeMux {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", s.handleIndex)
 	mux.HandleFunc("GET /v0/servers", s.handleListServers)
 	mux.HandleFunc("POST /v0/servers", s.handleRegisterServer)
 	mux.HandleFunc("PUT /v0/servers/{id}", s.handleUpdateServer)

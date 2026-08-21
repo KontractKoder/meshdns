@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MeshDNS</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b10;
+      --bg2: #11141b;
+      --panel: rgba(16, 19, 28, 0.92);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #e5e7eb;
+      --muted: #9aa3b2;
+      --accent: #7dd3fc;
+      --accent-2: #a78bfa;
+      --good: #34d399;
+      --bad: #fb7185;
+      --line: rgba(255, 255, 255, 0.07);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      --radius: 20px;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--mono);
+      background:
+        radial-gradient(circle at top left, rgba(125, 211, 252, 0.14), transparent 28%),
+        radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.12), transparent 30%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 20px 40px;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+      max-width: 15ch;
+    }
+
+    .lede {
+      max-width: 78ch;
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .cards {
+      grid-template-columns: 1.4fr 0.9fr;
+      align-items: start;
+      margin-top: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .stat {
+      padding: 16px 18px;
+      min-height: 108px;
+      display: grid;
+      align-content: space-between;
+    }
+
+    .stat label,
+    .section-title,
+    .mini-title {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+
+    .stat .value {
+      font-size: clamp(24px, 3vw, 38px);
+      font-weight: 700;
+      letter-spacing: -0.06em;
+    }
+
+    .stat .hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section {
+      padding: 18px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    thead th {
+      color: var(--muted);
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 10px 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    tbody td {
+      padding: 14px 0;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .name {
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 3px;
+    }
+
+    .description {
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .capabilities {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 4px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .chip {
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .badge.up {
+      color: #bbf7d0;
+      background: rgba(52, 211, 153, 0.12);
+      border-color: rgba(52, 211, 153, 0.24);
+    }
+
+    .badge.down {
+      color: #fecdd3;
+      background: rgba(251, 113, 133, 0.11);
+      border-color: rgba(251, 113, 133, 0.24);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .incident {
+      min-height: 84px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .resolve-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .resolve-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input, button, pre {
+      font: inherit;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #718096;
+    }
+
+    input:focus {
+      border-color: rgba(125, 211, 252, 0.45);
+      box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.08);
+    }
+
+    button {
+      border: 1px solid rgba(125, 211, 252, 0.28);
+      background: linear-gradient(180deg, rgba(125, 211, 252, 0.18), rgba(125, 211, 252, 0.08));
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      border-color: rgba(125, 211, 252, 0.45);
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      min-height: 220px;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #d1d5db;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      padding: 18px 4px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 980px) {
+      .stats,
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .wrap {
+        padding: 18px 14px 28px;
+      }
+
+      .resolve-row {
+        flex-direction: column;
+      }
+
+      thead {
+        display: none;
+      }
+
+      table,
+      tbody,
+      tr,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      tbody tr {
+        padding: 12px 0;
+      }
+
+      tbody td {
+        padding: 8px 0;
+      }
+
+      .right {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="eyebrow">MeshDNS registry</div>
+      <h1>MeshDNS — the service registry for AI agents. Ask for a capability, get the best available MCP server.</h1>
+      <p class="lede">Live registry state, recent health, and a quick capability resolver are all surfaced here without external scripts, fonts, or trackers.</p>
+    </header>
+
+    <section class="grid stats" aria-label="Live stats">
+      <article class="panel stat">
+        <label>Active servers</label>
+        <div class="value" id="stat-active">registry unreachable</div>
+        <div class="hint" id="stat-active-hint">Updated every 30s.</div>
+      </article>
+      <article class="panel stat">
+        <label>Up now</label>
+        <div class="value" id="stat-up">registry unreachable</div>
+        <div class="hint">Currently healthy and active.</div>
+      </article>
+      <article class="panel stat">
+        <label>Resolutions (24h)</label>
+        <div class="value" id="stat-resolutions">registry unreachable</div>
+        <div class="hint">Capability lookups in the last day.</div>
+      </article>
+      <article class="panel stat">
+        <label>Probes (24h)</label>
+        <div class="value" id="stat-probes">registry unreachable</div>
+        <div class="hint">Health probes recorded in the last day.</div>
+      </article>
+    </section>
+
+    <section class="grid cards">
+      <article class="panel section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Registry</div>
+            <h2>Top servers</h2>
+          </div>
+          <div class="muted" id="servers-updated">Loading…</div>
+        </div>
+        <table aria-label="Top servers table">
+          <thead>
+            <tr>
+              <th style="width: 18%;">Name</th>
+              <th style="width: 28%;">Description</th>
+              <th style="width: 22%;">Capabilities</th>
+              <th style="width: 10%;">Status</th>
+              <th style="width: 10%;">Uptime 30d</th>
+              <th class="right" style="width: 12%;">Last checked</th>
+            </tr>
+          </thead>
+          <tbody id="servers-body">
+            <tr><td colspan="6" class="muted">registry unreachable</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="panel section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Operations</div>
+            <h2>Incident notes</h2>
+          </div>
+        </div>
+        <div class="incident" id="incident-notes">No incidents reported.</div>
+      </article>
+    </section>
+
+    <section class="grid cards" style="margin-top: 16px;">
+      <article class="panel section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Demo</div>
+            <h2>Resolve capability</h2>
+          </div>
+        </div>
+        <div class="resolve-box">
+          <div class="resolve-row">
+            <input id="capability-input" type="text" placeholder="e.g. sandbox" autocomplete="off" spellcheck="false" />
+            <button id="resolve-button" type="button">Resolve</button>
+          </div>
+          <pre id="resolve-output">Enter a capability to see the best matching MCP servers.</pre>
+        </div>
+      </article>
+
+      <article class="panel section">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Notes</div>
+            <h2>API reference</h2>
+          </div>
+        </div>
+        <div class="footer" style="padding: 0; margin: 0;">
+          <div>
+            <div class="mini-title">Endpoints</div>
+            <ul>
+              <li>GET /v0/resolve</li>
+              <li>GET /v0/servers</li>
+              <li>POST /v0/servers</li>
+              <li>GET /v0/export</li>
+              <li>GET /v0/stats</li>
+            </ul>
+          </div>
+          <div>
+            <div class="mini-title">Source</div>
+            <a href="https://github.com/KontractKoder/meshdns" rel="noreferrer noopener" target="_blank">github.com/KontractKoder/meshdns</a>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const statActive = document.getElementById('stat-active');
+    const statUp = document.getElementById('stat-up');
+    const statResolutions = document.getElementById('stat-resolutions');
+    const statProbes = document.getElementById('stat-probes');
+    const serversBody = document.getElementById('servers-body');
+    const serversUpdated = document.getElementById('servers-updated');
+    const capabilityInput = document.getElementById('capability-input');
+    const resolveButton = document.getElementById('resolve-button');
+    const resolveOutput = document.getElementById('resolve-output');
+
+    function setRegistryUnavailable() {
+      statActive.textContent = 'registry unreachable';
+      statUp.textContent = 'registry unreachable';
+      statResolutions.textContent = 'registry unreachable';
+      statProbes.textContent = 'registry unreachable';
+      serversBody.innerHTML = '<tr><td colspan="6" class="muted">registry unreachable</td></tr>';
+      serversUpdated.textContent = 'registry unreachable';
+    }
+
+    function shortDate(value) {
+      if (!value) {
+        return 'never';
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+      return new Intl.DateTimeFormat(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+    }
+
+    function truncateDescription(text) {
+      if (!text) {
+        return '';
+      }
+      return text;
+    }
+
+    function renderCapabilities(caps) {
+      return caps.map((capability) => `<span class="chip">${escapeHTML(capability)}</span>`).join('');
+    }
+
+    function escapeHTML(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    async function fetchJSON(path) {
+      const response = await fetch(path, { headers: { Accept: 'application/json' } });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return await response.json();
+    }
+
+    async function refreshStats() {
+      const data = await fetchJSON('/v0/stats');
+      statActive.textContent = data.servers_active;
+      statUp.textContent = data.up_count;
+      statResolutions.textContent = data.resolutions_24h;
+      statProbes.textContent = data.probes_24h;
+    }
+
+    async function refreshServers() {
+      const data = await fetchJSON('/v0/servers?limit=20');
+      const rows = data.servers || [];
+      if (!rows.length) {
+        serversBody.innerHTML = '<tr><td colspan="6" class="muted">No servers registered yet.</td></tr>';
+      } else {
+        serversBody.innerHTML = rows.map((server) => {
+          const statusClass = server.up ? 'up' : 'down';
+          const statusLabel = server.up ? 'up' : 'down';
+          const uptime = Number(server.uptime_30d || 0);
+          const uptimeLabel = Number.isFinite(uptime) ? `${uptime.toFixed(1)}%` : 'n/a';
+          return `
+            <tr>
+              <td>
+                <div class="name">${escapeHTML(server.name || server.id || '')}</div>
+              </td>
+              <td>
+                <div class="description" title="${escapeHTML(server.description || '')}">${escapeHTML(truncateDescription(server.description || ''))}</div>
+              </td>
+              <td><div class="capabilities">${renderCapabilities(server.capabilities || [])}</div></td>
+              <td><span class="badge ${statusClass}">${statusLabel}</span></td>
+              <td>${uptimeLabel}</td>
+              <td class="right">${escapeHTML(shortDate(server.last_checked_at))}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+      serversUpdated.textContent = 'Updated just now';
+    }
+
+    async function refreshDashboard() {
+      try {
+        await Promise.all([refreshStats(), refreshServers()]);
+      } catch (error) {
+        setRegistryUnavailable();
+      }
+    }
+
+    async function resolveCapability() {
+      const capability = capabilityInput.value.trim();
+      if (!capability) {
+        resolveOutput.textContent = JSON.stringify({ error: 'capability is required' }, null, 2);
+        return;
+      }
+
+      resolveOutput.textContent = 'Resolving...';
+      try {
+        const data = await fetchJSON(`/v0/resolve?capability=${encodeURIComponent(capability)}`);
+        resolveOutput.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        resolveOutput.textContent = 'registry unreachable';
+      }
+    }
+
+    resolveButton.addEventListener('click', resolveCapability);
+    capabilityInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        resolveCapability();
+      }
+    });
+
+    refreshDashboard();
+    setInterval(refreshDashboard, 30000);
+  </script>
+</body>
+</html>
