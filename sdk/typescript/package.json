@@ -1,0 +1,32 @@
+{
+  "name": "@meshdns/client",
+  "version": "0.1.0",
+  "description": "MeshDNS TypeScript client — resolve mesh DNS servers by capability",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  },
+  "keywords": [
+    "meshdns",
+    "dns",
+    "mesh",
+    "resolver"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KontractKoder/meshdns"
+  }
+}
