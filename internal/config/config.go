@@ -23,8 +23,15 @@ type Config struct {
 }
 
 func Load() Config {
+	port := envString("PORT", defaultPort)
+	// Render sets PORT without colon; MESHDNS_PORT with colon takes precedence
+	if mp := os.Getenv("MESHDNS_PORT"); mp != "" {
+		port = mp
+	} else if port != "" && port[0] != ':' {
+		port = ":" + port
+	}
 	return Config{
-		Port:          envString("MESHDNS_PORT", defaultPort),
+		Port:          port,
 		DBPath:        envString("MESHDNS_DB", defaultDBPath),
 		ProbeInterval: envDuration("MESHDNS_PROBE_INTERVAL", defaultProbeInterval),
 		ProbeTimeout:  envDuration("MESHDNS_PROBE_TIMEOUT", defaultProbeTimeout),
