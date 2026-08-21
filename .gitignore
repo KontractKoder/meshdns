@@ -1,0 +1,7 @@
+meshdns
+*.db
+sdk/.venv/
+sdk/venv/
+sdk/node_modules/
+sdk/dist/
+.env
