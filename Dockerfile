@@ -1,13 +1,9 @@
-# Single-stage build — avoids multi-stage pull issues on Render
-FROM golang:1.24-alpine
+FROM alpine:3.20
 
 RUN apk --no-cache add ca-certificates tzdata
 
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 go build -o /meshdns ./cmd/meshdns
+COPY meshdns-linux /meshdns
+COPY web/ /web/
 
 EXPOSE 8080
 
