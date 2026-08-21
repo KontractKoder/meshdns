@@ -259,6 +259,53 @@ func TestExportAllIncludesDelisted(t *testing.T) {
 	}
 }
 
+func TestCountServersAndUpServers(t *testing.T) {
+	st := newTestStore(t)
+
+	for _, server := range []Server{
+		testServer("srv-up", "alpha"),
+		testServer("srv-down", "bravo"),
+		testServer("srv-delisted", "charlie"),
+	} {
+		mustCreate(t, st, server)
+	}
+	if err := st.DelistServer("srv-delisted"); err != nil {
+		t.Fatalf("DelistServer = %v", err)
+	}
+
+	checkedAt := time.Now().UTC().Format(time.RFC3339)
+	if err := st.SetServerState("srv-up", true, checkedAt, 0.9); err != nil {
+		t.Fatalf("SetServerState srv-up = %v", err)
+	}
+	if err := st.SetServerState("srv-down", false, checkedAt, 0.5); err != nil {
+		t.Fatalf("SetServerState srv-down = %v", err)
+	}
+	if err := st.SetServerState("srv-delisted", true, checkedAt, 1); err != nil {
+		t.Fatalf("SetServerState srv-delisted = %v", err)
+	}
+
+	active, err := st.CountServers("active")
+	if err != nil {
+		t.Fatalf("CountServers active = %v", err)
+	}
+	total, err := st.CountServers("")
+	if err != nil {
+		t.Fatalf("CountServers total = %v", err)
+	}
+	upActive, err := st.CountUpServers("active")
+	if err != nil {
+		t.Fatalf("CountUpServers active = %v", err)
+	}
+	upTotal, err := st.CountUpServers("")
+	if err != nil {
+		t.Fatalf("CountUpServers total = %v", err)
+	}
+
+	if active != 2 || total != 3 || upActive != 1 || upTotal != 2 {
+		t.Fatalf("counts active=%d total=%d upActive=%d upTotal=%d, want 2,3,1,2", active, total, upActive, upTotal)
+	}
+}
+
 func newTestStore(t *testing.T) *Store {
 	t.Helper()
 

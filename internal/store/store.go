@@ -356,6 +356,44 @@ func (s *Store) CountEventsSince(eventType, sinceTs string) (int, error) {
 	return count, nil
 }
 
+func (s *Store) CountServers(status string) (int, error) {
+	var count int
+	var err error
+	if status == "" || status == "all" {
+		err = s.db.QueryRow(`SELECT count(*) FROM servers`).Scan(&count)
+	} else {
+		err = s.db.QueryRow(`SELECT count(*) FROM servers WHERE status = ?`, status).Scan(&count)
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (s *Store) CountUpServers(status string) (int, error) {
+	var count int
+	var err error
+	if status == "" || status == "all" {
+		err = s.db.QueryRow(`
+SELECT count(*)
+FROM servers
+JOIN server_state ON server_state.server_id = servers.id
+WHERE server_state.up = 1`).Scan(&count)
+	} else {
+		err = s.db.QueryRow(`
+SELECT count(*)
+FROM servers
+JOIN server_state ON server_state.server_id = servers.id
+WHERE server_state.up = 1 AND servers.status = ?`, status).Scan(&count)
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (s *Store) ExportAll() ([]Server, error) {
 	return s.queryServers(baseServerQuery() + ` ORDER BY servers.name, servers.id`)
 }
